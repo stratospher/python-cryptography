@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+"""
+Python implementation of ChaCha20Poly1305@Bitcoin AEAD
+Details: https://github.com/bitcoin/bitcoin/pull/20962
+"""
+
 import sys
 from poly1305 import Poly1305
 from chacha20 import ChaCha20 
@@ -112,27 +118,15 @@ def TestAEAD(plaintext, k_F, k_V, ciphertext_with_mac):
     k_V = bytearray.fromhex(k_V)
     ciphertext_with_mac = bytearray.fromhex(ciphertext_with_mac)
 
-    global countYay
-    global countMeh
-
     # Test Encryption
     for _, _, ret in ChaCha20Poly1305AEAD(k_F, k_V, True, plaintext):
-        if(ret == ciphertext_with_mac):
-            countYay += 1
-        else:
-            countMeh += 1
+        assert ret == ciphertext_with_mac
         break
 
     # Test Decryption
     for _, _, ret in ChaCha20Poly1305AEAD(k_F, k_V, False, ciphertext_with_mac):
-        if(ret == plaintext):
-            countYay += 1
-        else:
-            countMeh += 1
+        assert ret == plaintext
         break
-
-countYay = 0
-countMeh = 0
 
 TestAEAD("1d00000000000000000000000000000000000000000000000000000000000000",
         "0000000000000000000000000000000000000000000000000000000000000000",
@@ -149,5 +143,3 @@ TestAEAD("fc0000f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b
         "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
         "3a40c1c868cd145bd54691e9b6b402c78bd7ea9c3724fc50dfc69a4a96be8dec4e70e958188aa69222eaef3f47f8003f1bc13dcf9e661be8e1b671e9cf46ba705bca963e0477a5b3c2e2c66feb8207269ddb01b1372aad68563bb4aad135afb06fbe40b310b63bef578ff939f3a00a6da9e744d28ba070294e5746d2ca7bb8ac2c8e3a855ab4c9bcd0d5855e11b52cacaa2ddb34c0a26cd04f4bc10de6dc151d4ee7ced2c2b0de8ded33ff11f301e4027559e8938b69bceb1e5e259d4122056f6adbd48a0628b912f90d72838f2f3aaf6b88342cf5bac3cb688a9b0f7afc73a7e3cad8e71254c786ea000240ae7bd1df8bcfca07f3b885723a9d7f89736461917bb2791faffbe34650c8501daaef76"
         )
-
-print(countYay, "passed and", countMeh, "failed")
